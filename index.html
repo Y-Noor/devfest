@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camera Access and Video Display</title>
+    <!-- <script src="script.js"></script> -->
+</head>
+
+<style>
+    #environment {
+        display: none;
+    }
+
+    #btn {
+        background-color: #04AA6D; /* Green */
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        
+    }
+
+    #btn:hover{
+        cursor: grab;
+    }
+</style>
+
+<body>
+
+    <div id="btn">
+        <label for="environment" id="btn">Open camera:</label>
+        <div id="ja">
+            <input 
+            type="file"
+            id="environment" 
+            capture="environment" 
+            accept="video/*"
+            value="Choose Your Media"
+        >
+        </div>
+    </div>
+
+</body>
+</html>
