@@ -7,6 +7,9 @@
 </head>
 
 <style>
+    body{
+        text-align:center
+    }
     #captured {
             /* Optional: set a max-width to prevent the image from getting too large */
             max-width: 25%; 
@@ -45,7 +48,7 @@
 
 <body>
     <div id="captured"></div>
-    <form id="uploadForm" hx-post="/upload" hx-encoding="multipart/form-data">
+    <form id="uploadForm" hx-post="/upload" hx-encoding="multipart/form-data" hx-swap="innerHTML">
         <div>
             <label for="environment" id="btn">Take image</label>
             <input type="file" id="environment" name="image" accept="image/*" capture="environment" required onchange="handleImageUpload(event)">
@@ -55,6 +58,9 @@
         <br>
 
         <input type="text" name="prmpt" required>
+        <br>
+        <br>
+        <div id="response"></div>
         <br>
         <br>
         <button type="submit">Upload</button>
