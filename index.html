@@ -3,10 +3,11 @@
 <head>
     <title>Camera Access and Video Display</title>
     <!-- <script src="script.js"></script> -->
+    <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
 </head>
 
 <style>
-    #environment {
+    #environment, #imaage {
         display: none;
     }
 
@@ -29,29 +30,13 @@
 
 <body>
 
-    <div id="btn">
-        <label for="environment" id="btn">Take a video</label>
-        <div id="ja">
-            <input 
-                type="file"
-                id="environment" 
-                capture="environment" 
-                accept="video/*"
-            >
-        </div>
-    </div>
-    <br><br>
-    <div id="btn">
-        <label for="environment" id="btn">Take an Image</label>
-        <div id="ja">
-            <input 
-                type="file"
-                id="environment" 
-                capture="environment" 
-                accept="image/*"
-            >x
-        </div>
-    </div>
-
+    <form id="uploadForm" hx-post="/upload" hx-encoding="multipart/form-data">
+        <input type="file" name="image" accept="image/*" capture="user" required>
+        <br>
+        <input type="text" name="prmpt">
+        <br>
+        <button type="submit">Upload</button>
+    </form>
 </body>
 </html>
+
