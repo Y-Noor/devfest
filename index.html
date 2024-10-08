@@ -29,11 +29,17 @@
 </style>
 
 <body>
-
     <form id="uploadForm" hx-post="/upload" hx-encoding="multipart/form-data">
-        <input type="file" name="image" accept="image/*" capture="user" required>
+        <div>
+            <label for="environment" id="btn">Take image</label>
+            <input type="file" id="environment" name="image" accept="image/*" capture="user" required >
+        </div>
+
         <br>
-        <input type="text" name="prmpt">
+        <br>
+
+        <input type="text" name="prmpt" required>
+        <br>
         <br>
         <button type="submit">Upload</button>
     </form>
