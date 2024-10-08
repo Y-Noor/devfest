@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 const (
@@ -27,6 +28,10 @@ func main() {
 		log.Print("Request received")
 		log.Print(r.Header.Get("HX-Request"))
 
+		dt := time.Now()
+		dtf := dt.Format("01_02_2006_15_04_05")
+		// fmt.Println()
+
 		r.ParseMultipartForm(maxUploadSize)
 
 		// Retrieve the file and prompt from form data
@@ -35,17 +40,27 @@ func main() {
 		file, fileHeader, err := r.FormFile("image")
 		if err != nil {
 			http.Error(w, "Invalid file", http.StatusBadRequest)
+			fmt.Print(fileHeader)
 			return
 		}
 		defer file.Close()
 
 		// Create a new file in the uploads directory
-		newFilePath := filepath.Join(uploadPath, fileHeader.Filename)
-		newFile, err := os.Create(newFilePath)
+		ImageNewFilePath := filepath.Join(uploadPath, dtf+".jpg")
+		PromptNewFilePath := filepath.Join(uploadPath, dtf+".txt")
+
+		newFile, err := os.Create(ImageNewFilePath)
 		if err != nil {
 			http.Error(w, "Unable to create file", http.StatusInternalServerError)
 			return
 		}
+		x, e := os.Create(PromptNewFilePath)
+		_, err = x.WriteString(prompt)
+
+		if e != nil {
+			log.Print("err")
+		}
+
 		defer newFile.Close()
 
 		// Copy the uploaded file to the new file on disk
@@ -54,8 +69,7 @@ func main() {
 			return
 		}
 
-		fmt.Fprintf(w, "Successfully uploaded: %s\n", fileHeader.Filename)
-
+		// fmt.Fprintf(w, "Successfully uploaded: %s\n", fileHeader.Filename)
 	}
 
 	http.HandleFunc("/", h1)

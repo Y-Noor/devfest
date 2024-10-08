@@ -7,7 +7,22 @@
 </head>
 
 <style>
-    #environment, #imaage {
+    #captured {
+            /* Optional: set a max-width to prevent the image from getting too large */
+            max-width: 25%; 
+            display: inline-block; /* Allows the container to resize based on image size */
+            border: 2px solid #ccc; /* Optional: Add border around image */
+            padding: 10px; /* Optional: Add padding around the image */
+        }
+
+        /* Image styling */
+        img {
+            max-width: 100%; /* Ensure the image doesn't exceed the container's width */
+            height: auto; /* Maintain aspect ratio */
+            display: block; /* Removes extra space below the image */
+        }
+
+    #environment, #environment2, #imaage {
         display: none;
     }
 
@@ -29,10 +44,11 @@
 </style>
 
 <body>
+    <div id="captured"></div>
     <form id="uploadForm" hx-post="/upload" hx-encoding="multipart/form-data">
         <div>
             <label for="environment" id="btn">Take image</label>
-            <input type="file" id="environment" name="image" accept="image/*" capture="user" required >
+            <input type="file" id="environment" name="image" accept="image/*" capture="environment" required onchange="handleImageUpload(event)">
         </div>
 
         <br>
@@ -45,4 +61,25 @@
     </form>
 </body>
 </html>
+
+<script>
+    function handleImageUpload(event) {
+        const file = event.target.files[0]; // Get the selected file
+
+        if (file) {
+            const reader = new FileReader(); // Create a FileReader instance
+            reader.onload = function(e) {
+                const img = document.createElement('img'); // Create an img element
+                img.src = e.target.result; // Set the image source to the loaded data
+                img.alt = "Uploaded Image"; // Provide alt text
+
+                // Clear previous images and display the new one
+                const imageDisplay = document.getElementById('captured');
+                imageDisplay.innerHTML = ''; // Clear previous content
+                imageDisplay.appendChild(img); // Append the new image
+            };
+            reader.readAsDataURL(file); // Read the file as a data URL
+        }
+    }
+</script>
 
