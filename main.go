@@ -94,11 +94,26 @@ func main() {
 		}
 		defer client.Close()
 
-		model := client.GenerativeModel("gemini-1.5-flash")
-		resp, err := model.GenerateContent(ctx, genai.Text(prompt))
+		modelfile, err := client.UploadFileFromPath(ctx, filepath.Join(uploadPath, dtf+".jpg"), nil)
 		if err != nil {
 			log.Fatal(err)
 		}
+		defer client.DeleteFile(ctx, modelfile.Name)
+
+		model := client.GenerativeModel("gemini-1.5-flash")
+		resp, err := model.GenerateContent(ctx,
+			genai.FileData{URI: modelfile.URI},
+			genai.Text(prompt))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// printResponse(resp)
+		// model := client.GenerativeModel("gemini-1.5-flash")
+		// resp, err := model.GenerateContent(ctx, genai.Text(prompt))
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
 
 		if resp.Candidates != nil {
 			for _, v := range resp.Candidates {
