@@ -115,14 +115,16 @@ func main() {
 		// 	log.Fatal(err)
 		// }
 
+		response := ""
 		if resp.Candidates != nil {
 			for _, v := range resp.Candidates {
 				for _, k := range v.Content.Parts {
-					fmt.Println(k.(genai.Text))
+					response = response + string(k.(genai.Text))
 				}
 			}
 		}
 
+		fmt.Fprintf(w, response)
 		// fmt.Fprintf(w, "Successfully uploaded: %s\n", fileHeader.Filename)
 	}
 
