@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"io"
@@ -9,7 +10,13 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/google/generative-ai-go/genai"
+	"google.golang.org/api/option"
 )
+
+// import
+// import
 
 const (
 	maxUploadSize = 100 * 1024 * 1024 // 2 MB
@@ -76,37 +83,30 @@ func main() {
 			return
 		}
 
-		// ctx := context.Background()
-		// // Access your API key as an environment variable (see "Set up your API key" above)
-		// client, err := genai.NewClient(ctx, option.WithAPIKey(string(API_KEY)))
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
+		//
+		//
 
-		// file, err = client.UploadFileFromPath(ctx, filepath.Join(uploadPath, dtf+".jpg"), nil)
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// defer client.DeleteFile(ctx, file.Name)
+		ctx := context.Background()
+		// Access your API key as an environment variable (see "Set up your API key" above)
+		client, err := genai.NewClient(ctx, option.WithAPIKey(string(API_KEY)))
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer client.Close()
 
-		// gotFile, err := client.GetFile(ctx, file.Name)
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// fmt.Println("Got file:", gotFile.Name)
+		model := client.GenerativeModel("gemini-1.5-flash")
+		resp, err := model.GenerateContent(ctx, genai.Text(prompt))
+		if err != nil {
+			log.Fatal(err)
+		}
 
-		// model := client.GenerativeModel("gemini-1.5-flash")
-		// resp, err := model.GenerateContent(ctx,
-		// 	genai.FileData{URI: file.Name},
-		// 	genai.Text("Describe this image"))
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// for _, c := range resp.Candidates {
-		// 	if c.Content != nil {
-		// 		fmt.Println(*c.Content)
-		// 	}
-		// }
+		if resp.Candidates != nil {
+			for _, v := range resp.Candidates {
+				for _, k := range v.Content.Parts {
+					fmt.Println(k.(genai.Text))
+				}
+			}
+		}
 
 		// fmt.Fprintf(w, "Successfully uploaded: %s\n", fileHeader.Filename)
 	}
