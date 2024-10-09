@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"html/template"
 	"io"
@@ -10,9 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-
-	"github.com/google/generative-ai-go/genai"
-	"google.golang.org/api/option"
 )
 
 const (
@@ -80,18 +76,18 @@ func main() {
 			return
 		}
 
-		ctx := context.Background()
-		// Access your API key as an environment variable (see "Set up your API key" above)
-		client, err := genai.NewClient(ctx, option.WithAPIKey(string(API_KEY)))
-		if err != nil {
-			log.Fatal(err)
-		}
+		// ctx := context.Background()
+		// // Access your API key as an environment variable (see "Set up your API key" above)
+		// client, err := genai.NewClient(ctx, option.WithAPIKey(string(API_KEY)))
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
 
-		file, err = client.UploadFileFromPath(ctx, filepath.Join(uploadPath, dtf+".jpg"), nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer client.DeleteFile(ctx, file.Name)
+		// file, err = client.UploadFileFromPath(ctx, filepath.Join(uploadPath, dtf+".jpg"), nil)
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// defer client.DeleteFile(ctx, file.Name)
 
 		// gotFile, err := client.GetFile(ctx, file.Name)
 		// if err != nil {
@@ -99,18 +95,18 @@ func main() {
 		// }
 		// fmt.Println("Got file:", gotFile.Name)
 
-		model := client.GenerativeModel("gemini-1.5-flash")
-		resp, err := model.GenerateContent(ctx,
-			genai.FileData{URI: file.Name},
-			genai.Text("Describe this image"))
-		if err != nil {
-			log.Fatal(err)
-		}
-		for _, c := range resp.Candidates {
-			if c.Content != nil {
-				fmt.Println(*c.Content)
-			}
-		}
+		// model := client.GenerativeModel("gemini-1.5-flash")
+		// resp, err := model.GenerateContent(ctx,
+		// 	genai.FileData{URI: file.Name},
+		// 	genai.Text("Describe this image"))
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// for _, c := range resp.Candidates {
+		// 	if c.Content != nil {
+		// 		fmt.Println(*c.Content)
+		// 	}
+		// }
 
 		// fmt.Fprintf(w, "Successfully uploaded: %s\n", fileHeader.Filename)
 	}
