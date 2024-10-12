@@ -25,10 +25,7 @@ const (
 
 func main() {
 	fmt.Println("hello")
-	API_KEY, err := os.ReadFile("keys.txt")
-	if err == nil {
-		fmt.Print(string(API_KEY))
-	}
+	API_KEY, _ := os.ReadFile("keys.txt")
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
 
@@ -218,47 +215,31 @@ func main() {
 			fmt.Printf("File %s is ready for inference as: %q\n",
 				response.DisplayName, response.URI)
 
-			prompt := []genai.Part{
+			vPrompt := []genai.Part{
 				genai.FileData{URI: response.URI},
-				genai.Text("Summarize this video. Then create a quiz with " +
-					" answer key based on the information in the video."),
+				genai.Text(prompt),
 			}
 			model := client.GenerativeModel("gemini-1.5-flash")
 			// Generate content using the prompt.
-			resp, err := model.GenerateContent(ctx, prompt...)
-			if err != nil {
-				log.Fatal(err)
-			}
 
-			// Handle the response of generated text.
-			for _, c := range resp.Candidates {
-				if c.Content != nil {
-					fmt.Println(*c.Content)
-				}
-			}
-
-			vPrompt := []genai.Part{
-				genai.FileData{URI: response.URI},
-				genai.Text("Summarize this video. Then create a quiz with " +
-					" answer key based on the information in the video."),
-			}
-
-			// Generate content using the prompt.
 			vResp, err := model.GenerateContent(ctx, vPrompt...)
 			if err != nil {
 				log.Fatal(err)
 			}
 
 			// Handle the response of generated text.
+			toDisplay := ""
 			for _, c := range vResp.Candidates {
 				if c.Content != nil {
-					fmt.Println(*c.Content)
+
+					for _, k := range c.Content.Parts {
+						toDisplay = toDisplay + string(k.(genai.Text))
+					}
 				}
 			}
 
-			// response := "videoooooo"
-			// templ, _ := template.New("t").Parse(response)
-			// templ.Execute(w, nil)
+			templ, _ := template.New("t").Parse(toDisplay)
+			templ.Execute(w, nil)
 		}
 	}
 
