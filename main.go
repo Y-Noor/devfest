@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"html/template"
@@ -13,6 +14,8 @@ import (
 
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
+
+	"cloud.google.com/go/storage"
 )
 
 // import
@@ -68,34 +71,63 @@ func main() {
 
 			defer file.Close()
 
-			// Create a new file in the uploads directory
-			ImageNewFilePath := filepath.Join(uploadPath, dtf+".jpg")
-			PromptNewFilePath := filepath.Join(uploadPath, dtf+".txt")
+			// // Create a new file in the uploads directory                                        // LLLLLLLOOOOOOOOCCCCCCCAAAAAALLLLLL
+			// ImageNewFilePath := filepath.Join(uploadPath, dtf+".jpg")
+			// PromptNewFilePath := filepath.Join(uploadPath, dtf+".txt")
 
-			newFile, err := os.Create(ImageNewFilePath)
-			if err != nil {
-				http.Error(w, "Unable to create file", http.StatusInternalServerError)
-				return
-			}
-			x, e := os.Create(PromptNewFilePath)
-			_, err = x.WriteString(prompt)
+			// newFile, err := os.Create(ImageNewFilePath)
+			// if err != nil {
+			// 	http.Error(w, "Unable to create file", http.StatusInternalServerError)
+			// 	return
+			// }
+			// x, e := os.Create(PromptNewFilePath)
+			// _, err = x.WriteString(prompt)
 
-			if e != nil {
-				log.Print("err")
-			}
+			// if e != nil {
+			// 	log.Print("err")
+			// }
 
-			defer newFile.Close()
+			// defer newFile.Close()
 
-			// Copy the uploaded file to the new file on disk
-			if _, err := io.Copy(newFile, file); err != nil {
-				http.Error(w, "Unable to save file", http.StatusInternalServerError)
-				return
-			}
+			// // Copy the uploaded file to the new file on disk
+			// if _, err := io.Copy(newFile, file); err != nil {
+			// 	http.Error(w, "Unable to save file", http.StatusInternalServerError)
+			// 	return
+			// }
 
-			//
-			//
+			// //
+			// //
+			bucket := "bucket-name"
+			objectImg := dtf + ".jpg"
+			// objectPrmpt := dtf + ".txt"
 
 			ctx := context.Background()
+
+			clientt, errr := storage.NewClient(ctx)
+			if errr != nil {
+				fmt.Errorf("storage.NewClient: %w", errr)
+			}
+			defer clientt.Close()
+
+			b := []byte("Hello world.")
+			buf := bytes.NewBuffer(b)
+
+			ctx, cancel := context.WithTimeout(ctx, time.Second*50)
+			defer cancel()
+
+			// Upload an object with storage.Writer.
+			wc := clientt.Bucket(bucket).Object(objectImg).NewWriter(ctx)
+			wc.ChunkSize = 0 // note retries are not supported for chunk size 0.
+
+			if _, errr = io.Copy(wc, buf); err != nil {
+				fmt.Errorf("io.Copy: %w", errr)
+			}
+			// Data can continue to be added to the file until the writer is closed.
+			if err := wc.Close(); err != nil {
+				fmt.Errorf("Writer.Close: %w", err)
+			}
+			fmt.Fprintf(w, "%v uploaded to %v.\n", objectImg, bucket)
+
 			// Access your API key as an environment variable (see "Set up your API key" above)
 			client, err := genai.NewClient(ctx, option.WithAPIKey(string(API_KEY)))
 			if err != nil {
