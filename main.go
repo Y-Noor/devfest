@@ -34,6 +34,13 @@ func main() {
 	}
 
 	h2 := func(w http.ResponseWriter, r *http.Request) {
+
+		time.Sleep(10 * time.Second)
+		fmt.Print("done")
+		templ, _ := template.New("t").Parse("loaded")
+		templ.Execute(w, nil)
+		return
+
 		log.Print("Request received")
 		log.Print(r.Header.Get("HX-Request"))
 
@@ -245,6 +252,7 @@ func main() {
 
 	http.HandleFunc("/", h1)
 	http.HandleFunc("/upload", h2)
-	log.Fatal(http.ListenAndServe(":8000", nil))
+	log.Fatal(http.ListenAndServe(":8080", nil))
+	http.Handle("/", http.FileServer(http.Dir("/")))
 
 }
