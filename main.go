@@ -38,12 +38,6 @@ func main() {
 
 	h2 := func(w http.ResponseWriter, r *http.Request) {
 
-		time.Sleep(10 * time.Second)
-		fmt.Print("done")
-		templ, _ := template.New("t").Parse("loaded")
-		templ.Execute(w, nil)
-		return
-
 		log.Print("Request received")
 		log.Print(r.Header.Get("HX-Request"))
 
@@ -61,6 +55,7 @@ func main() {
 		fmt.Println("flag::::::::::::::::", flag)
 
 		if flag == "img" {
+			fmt.Println("inside img if")
 			file, fileHeader, err := r.FormFile("image")
 
 			if err != nil {
@@ -71,62 +66,35 @@ func main() {
 
 			defer file.Close()
 
-			// // Create a new file in the uploads directory                                        // LLLLLLLOOOOOOOOCCCCCCCAAAAAALLLLLL
-			// ImageNewFilePath := filepath.Join(uploadPath, dtf+".jpg")
-			// PromptNewFilePath := filepath.Join(uploadPath, dtf+".txt")
+			// Create a new file in the uploads directory                                        // LLLLLLLOOOOOOOOCCCCCCCAAAAAALLLLLL
+			ImageNewFilePath := filepath.Join(uploadPath, dtf+".jpg")
+			PromptNewFilePath := filepath.Join(uploadPath, dtf+".txt")
 
-			// newFile, err := os.Create(ImageNewFilePath)
-			// if err != nil {
-			// 	http.Error(w, "Unable to create file", http.StatusInternalServerError)
-			// 	return
-			// }
-			// x, e := os.Create(PromptNewFilePath)
-			// _, err = x.WriteString(prompt)
+			newFile, err := os.Create(ImageNewFilePath)
+			if err != nil {
+				http.Error(w, "Unable to create file", http.StatusInternalServerError)
+				return
+			}
+			x, e := os.Create(PromptNewFilePath)
+			_, err = x.WriteString(prompt)
 
-			// if e != nil {
-			// 	log.Print("err")
-			// }
+			if e != nil {
+				log.Print("err")
+			}
 
-			// defer newFile.Close()
+			defer newFile.Close()
 
-			// // Copy the uploaded file to the new file on disk
-			// if _, err := io.Copy(newFile, file); err != nil {
-			// 	http.Error(w, "Unable to save file", http.StatusInternalServerError)
-			// 	return
-			// }
+			// Copy the uploaded file to the new file on disk
+			if _, err := io.Copy(newFile, file); err != nil {
+				http.Error(w, "Unable to save file", http.StatusInternalServerError)
+				return
+			}
 
-			// //
-			// //
-			bucket := "bucket-name"
-			objectImg := dtf + ".jpg"
-			// objectPrmpt := dtf + ".txt"
 
 			ctx := context.Background()
 
-			clientt, errr := storage.NewClient(ctx)
-			if errr != nil {
-				fmt.Errorf("storage.NewClient: %w", errr)
-			}
-			defer clientt.Close()
-
-			b := []byte("Hello world.")
-			buf := bytes.NewBuffer(b)
-
-			ctx, cancel := context.WithTimeout(ctx, time.Second*50)
-			defer cancel()
-
-			// Upload an object with storage.Writer.
-			wc := clientt.Bucket(bucket).Object(objectImg).NewWriter(ctx)
-			wc.ChunkSize = 0 // note retries are not supported for chunk size 0.
-
-			if _, errr = io.Copy(wc, buf); err != nil {
-				fmt.Errorf("io.Copy: %w", errr)
-			}
-			// Data can continue to be added to the file until the writer is closed.
-			if err := wc.Close(); err != nil {
-				fmt.Errorf("Writer.Close: %w", err)
-			}
-			fmt.Fprintf(w, "%v uploaded to %v.\n", objectImg, bucket)
+			
+			
 
 			// Access your API key as an environment variable (see "Set up your API key" above)
 			client, err := genai.NewClient(ctx, option.WithAPIKey(string(API_KEY)))
@@ -149,13 +117,6 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-
-			// printResponse(resp)
-			// model := client.GenerativeModel("gemini-1.5-flash")
-			// resp, err := model.GenerateContent(ctx, genai.Text(prompt))
-			// if err != nil {
-			// 	log.Fatal(err)
-			// }
 
 			response := ""
 			if resp.Candidates != nil {
