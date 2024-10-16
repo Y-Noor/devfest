@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"html/template"
@@ -14,8 +13,6 @@ import (
 
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
-
-	"cloud.google.com/go/storage"
 )
 
 // import
@@ -57,6 +54,77 @@ func main() {
 		if flag == "img" {
 			fmt.Println("inside img if")
 			file, fileHeader, err := r.FormFile("image")
+			fmt.Println(file)
+
+			// ==============================================================================================================================================
+			// UPLOAD TO CLOUD BUCKET AND READ AND FEED INTO MODEL
+
+			// file, fileHeader, err := r.FormFile("image")
+			// imageForBucket, _ := io.ReadAll(file)
+			// promptForBucket := []byte(prompt)
+
+			// if err != nil {
+			// 	http.Error(w, "Invalid file", http.StatusBadRequest)
+			// 	fmt.Print(fileHeader)
+			// 	return
+			// }
+
+			// defer file.Close()
+
+			// ctxt := context.Background()
+
+			// // projectID := "devfest2024-438119"
+			// ctx := context.Background()
+
+			// // Replace with your project ID
+			// // projectID := "devfest2024-438119"
+			// bucketName := "devfest2024bucket"
+
+			// // Create a Cloud Storage client
+			// client, err := storage.NewClient(ctx)
+			// if err != nil {
+			// 	fmt.Errorf("failed to create storage client: %w", err)
+			// }
+			// defer client.Close()
+
+			// // Create a bucket object
+			// bucket := client.Bucket(bucketName)
+
+			// // Create an object for writing
+			// imageObject := bucket.Object(dtf)
+			// wc := imageObject.NewWriter(ctx)
+			// if err != nil {
+			// 	fmt.Errorf("failed to create object writer: %w", err)
+			// }
+			// defer wc.Close()
+
+			// // Write the data to the object
+			// _, err = wc.Write(imageForBucket)
+			// if err != nil {
+			// 	fmt.Errorf("failed to write data to object: %w", err)
+			// }
+			// _, err = wc.Write(promptForBucket)
+			// if err != nil {
+			// 	fmt.Errorf("failed to write data to object: %w", err)
+			// }
+
+			// client2, err := genai.NewClient(ctx, option.WithAPIKey(string(API_KEY)))
+			// if err != nil {
+			// 	log.Fatal(err)
+			// }
+			// defer client.Close()
+			// model := client2.GenerativeModel("gemini-1.5-flash")
+
+			// genaiImgData1 := genai.ImageData("jpeg", imageForBucket)
+
+			// prompt := []genai.Part{
+			// 	genaiImgData1,
+			// 	genai.Text(
+			// 		prompt),
+			// }
+			// resp, err := model.GenerateContent(ctxt, prompt...)
+
+			// ==================================================================================================================================================
 
 			if err != nil {
 				http.Error(w, "Invalid file", http.StatusBadRequest)
@@ -90,11 +158,7 @@ func main() {
 				return
 			}
 
-
 			ctx := context.Background()
-
-			
-			
 
 			// Access your API key as an environment variable (see "Set up your API key" above)
 			client, err := genai.NewClient(ctx, option.WithAPIKey(string(API_KEY)))
