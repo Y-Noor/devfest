@@ -304,6 +304,170 @@ func main() {
 
 			templ, _ := template.New("t").Parse(toDisplay)
 			templ.Execute(w, nil)
+
+			// //////////////////////////////////////////////////////////////////////////////////// working part for cloud run
+
+			// fmt.Print("videoooooooooo")
+
+			// file, fileHeader, err := r.FormFile("video")
+			// defer file.Close()
+
+			// // ////////////////////////////////////////////////////////////////
+
+			// videoForBucket, _ := io.ReadAll(file)
+			// promptForBucket := []byte(prompt)
+			// fmt.Println(videoForBucket)
+			// fmt.Println(promptForBucket)
+			// if err != nil {
+			// 	http.Error(w, "Invalid file", http.StatusBadRequest)
+			// 	fmt.Print(fileHeader)
+			// 	return
+			// }
+
+			// // ctxt := context.Background()
+
+			// // projectID := "devfest2024-438119"
+			// ctx := context.Background()
+			// fmt.Println("context bg")
+			// client, err := storage.NewClient(ctx)
+			// fmt.Println("storage newclient")
+			// if err != nil {
+			// 	fmt.Errorf("storage.NewClient: %w", err)
+			// }
+			// defer client.Close()
+
+			// // Replace with your project ID
+			// // projectID := "devfest2024-438119"
+			// bucketName := "devfest2024bucket"
+
+			// ctx, cancel := context.WithTimeout(ctx, time.Second*50)
+			// defer cancel()
+
+			// // Upload an object with storage.Writer.
+			// wc := client.Bucket(bucketName).Object("video" + dtf).NewWriter(ctx)
+			// fmt.Println("wc")
+			// wc.ChunkSize = 0 // note retries are not supported for chunk size 0.
+
+			// fmt.Println("storage writer")
+
+			// // Write the data to the object
+			// _, err = wc.Write(videoForBucket)
+			// if err != nil {
+			// 	fmt.Errorf("failed to write data to object: %w", err)
+			// }
+
+			// fmt.Println("wc write")
+
+			// if err := wc.Close(); err != nil {
+			// 	fmt.Errorf("Writer.Close: %w", err)
+			// }
+			// fmt.Println("%v uploaded to %v.\n", "video"+dtf, bucketName)
+
+			// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+			// ctx2 := context.Background()
+			// client2, err := storage.NewClient(ctx2)
+			// if err != nil {
+			// 	fmt.Errorf("storage.NewClient: %w", err)
+			// }
+			// defer client2.Close()
+
+			// ctx2, cancel2 := context.WithTimeout(ctx2, time.Second*50)
+			// defer cancel2()
+
+			// rc, err := client.Bucket(bucketName).Object("video" + dtf).NewReader(ctx2)
+			// if err != nil {
+			// 	fmt.Errorf("Object(%q).NewReader: %w", "video"+dtf, err)
+			// }
+			// defer rc.Close()
+
+			// data, err := ioutil.ReadAll(rc)
+			// if err != nil {
+			// 	fmt.Errorf("ioutil.ReadAll: %w", err)
+			// }
+			// fmt.Println("Blob %v downloaded.\n")
+			// fmt.Println(data)
+
+			// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// ctx3 := context.Background()
+			// fmt.Println("ctx3")
+
+			// // Access your API key as an environment variable
+			// vClient, err := genai.NewClient(ctx3, option.WithAPIKey(string(API_KEY)))
+			// if err != nil {
+			// 	log.Fatal(err)
+			// }
+			// defer vClient.Close()
+			// fmt.Println("vclient done")
+
+			// //open?
+
+			// // Optionally set a display name.
+			// opts := genai.UploadFileOptions{DisplayName: "video" + dtf}
+			// fmt.Println("opts")
+
+			// // Let the API generate a unique `name` for the file by passing an empty string.
+			// // If you specify a `name`, then it has to be globally unique.
+			// // fromBucket :=
+			// reader := bytes.NewReader(videoForBucket)
+			// response3, err := vClient.UploadFile(ctx3, "", reader, &opts)
+			// fmt.Println("response")
+			// fmt.Println(response3)
+
+			// if err != nil {
+			// 	log.Fatal(err)
+			// }
+			// fmt.Println(response3)
+
+			// // View the response.
+			// var VideoFile *genai.File = response3
+			// fmt.Printf("Uploaded file %s as: %q\n", VideoFile.DisplayName, VideoFile.URI)
+
+			// // Poll GetFile() on a set interval (10 seconds here) to
+			// // check file state.
+			// for response3.State == genai.FileStateProcessing {
+			// 	fmt.Print(".")
+			// 	// Sleep for 10 seconds
+			// 	time.Sleep(10 * time.Second)
+
+			// 	// Fetch the file from the API again.
+			// 	response3, err = vClient.GetFile(ctx3, VideoFile.Name)
+			// 	if err != nil {
+			// 		log.Fatal(err)
+			// 	}
+			// }
+			// fmt.Println()
+
+			// // View the response.
+			// fmt.Printf("File %s is ready for inference as: %q\n",
+			// 	response3.DisplayName, response3.URI)
+
+			// vPrompt := []genai.Part{
+			// 	genai.FileData{URI: response3.URI},
+			// 	genai.Text(prompt),
+			// }
+			// model := vClient.GenerativeModel("gemini-1.5-flash")
+			// // Generate content using the prompt.
+
+			// vResp, err := model.GenerateContent(ctx3, vPrompt...)
+			// if err != nil {
+			// 	log.Fatal(err)
+			// }
+
+			// // Handle the response of generated text.
+			// toDisplay := ""
+			// for _, c := range vResp.Candidates {
+			// 	if c.Content != nil {
+
+			// 		for _, k := range c.Content.Parts {
+			// 			toDisplay = toDisplay + string(k.(genai.Text))
+			// 		}
+			// 	}
+			// }
+
+			// templ, _ := template.New("t").Parse(toDisplay)
+			// templ.Execute(w, nil)
+
 		}
 	}
 
