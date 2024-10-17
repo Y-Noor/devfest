@@ -8,17 +8,30 @@
     <title>Camera Access and Video Display</title>
     <!-- <script src="script.js"></script> -->
     <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script> 
 
     <style>
+      html{
+        font-size: 34px;
+      }
         body{
+          width: 100vw;
+          height: 100vh;
+          background-color: #1f2021;
     text-align:center
 }
 #captured {
         /* Optional: set a max-width to prevent the image from getting too large */
-        max-width: 25%; 
+        max-width: 35%; 
         display: inline-block; /* Allows the container to resize based on image size */
-        border: 2px solid #ccc; /* Optional: Add border around image */
+        border: 2px solid #EA4335; /* Optional: Add border around image */
+        border-style: dashed;
         padding: 10px; /* Optional: Add padding around the image */
+        margin: 10px;
+        min-width: 150px;
+        min-height: 50px;
+        color: #ccc ;
+
     }
 
     /* Image styling */
@@ -33,25 +46,27 @@
 }
 
 #btn {
-    background-color: #04AA6D; /* Green */
+    background-color: #34A853; /* Green */
     border: none;
     color: white;
-    padding: 15px 32px;
+    padding: 12px 24px;
+    border-radius: 7px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;  
+    font-size: 24px;  
 }
 
 #btn2 {
     background-color: #0470aa; /* Green */
     border: none;
+    border-radius: 7px;
     color: white;
-    padding: 15px 32px;
+    padding: 12px 24px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;  
+    font-size: 24px;  
 }
 
 #btn:hover{
@@ -60,104 +75,160 @@
 
 
 .buttonload {
-background-color: #04AA6D; /* Green background */
-border: none; /* Remove borders */
-color: white; /* White text */
-padding: 12px 16px; /* Some padding */
-font-size: 16px /* Set a font size */
+  /* background-color: #04AA6D;  */
+  border: none; /* Remove borders */
+  color: white; /* White text */
+  padding: 12px 16px; /* Some padding */
+  font-size: 16px /* Set a font size */
 }
-    </style>
 
-<nav class="bg-gray-800">
-    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8" >
-      <div class="relative flex h-16 items-center justify-between">
-        <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-          <!-- Mobile menu button-->
-          <button type="button" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded="false">
-            <span class="absolute -inset-0.5"></span>
-            <span class="sr-only">Open main menu</span>
-            <!--
-              Icon when menu is closed.
-  
-              Menu open: "hidden", Menu closed: "block"
-            -->
-            <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-            <!--
-              Icon when menu is open.
-  
-              Menu open: "block", Menu closed: "hidden"
-            -->
-            <svg class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-          <div class="flex flex-shrink-0 items-center">
-            <img class="h-8 w-auto" src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
-          </div>
-          <div class="hidden sm:ml-6 sm:block">
-            <div class="flex space-x-4">
-              <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-              <a href="#" id="gemini" class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white" aria-current="page"><div onclick="listenn('gemini')">Gemini</div></a>
-              <a href="#" id="intelligence" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"><div onclick="listenn('intelligence')">Video Intelligence</div></a>
-              <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Document AI</a>
-              <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Imperfection detector?</a>
-            </div>
-          </div>
-        </div>
-    </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  
-    <!-- Mobile menu, show/hide based on menu state. -->
-    <div class="sm:hidden" id="mobile-menu">
-      <div class="space-y-1 px-2 pb-3 pt-2">
-        <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-        <a href="#" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white" aria-current="page">Dashboard</a>
-        <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Team</a>
-        <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Projects</a>
-        <a href="#" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Calendar</a>
-      </div>
-    </div>
-  </nav>
-  
-</head>
+#inputs{
+  margin-top: 20px;
+}
+
+
+#prmpt{
+  margin-top: 40px;
+  width: 600px;
+  padding: 10px;
+  border-radius: 15px;
+}
+
+#border{
+  width: 66666px;
+  border-radius: 10px;
+  border: 4px dashed;
+  max-width: 40%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  border-color: #FBBC05;
+
+
+}
+
+#response{
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  color: #ccc;
+  padding: 15px;
+
+}
+
+
+.loader{
+  margin-top: 10px;
+  max-width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  opacity:0;
+  /* position:fixed; */
+  width:600px;
+  text-align: center;
+  top: 50%;
+  left: calc(50%-100px);
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+	background-size: 400% 400%;
+	animation: gradient 5s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+.loader.htmx-request{
+  opacity:1;
+}
+
+
+
+.buttonload {
+  margin-top: 40px;
+  padding:20px;
+  /* height: 300px; */
+  border-radius: 50px;
+  border: 2px solid #000; /* Set initial border color and width */
+  transition: border-color 0.5s ease; /* Transition for smooth color change */
+  font-size: 28px;
+}
+
+.disco {
+  background-color: #313233; /* Change border color on hover */
+  animation: color-move 2s infinite linear; /* Animate color movement */
+}
+
+@keyframes color-move {
+  0% {
+    border-color: #4285F4;
+  }
+  25% {
+    border-color: #34A853;
+  }
+  50% {
+    border-color: #FBBC05;
+  }
+  75% {
+    border-color: #EA4335;
+  }
+  100% {
+    border-color: #4285F4;
+  }
+}
+
+</style>
 
 
 
 <body>
-    <div id="captured"></div>
-    <form id="uploadForm" hx-post="/upload" hx-encoding="multipart/form-data" hx-swap="innerHTML" hx-target="#response" >
-        <div>
+    <div id="captured">Your image/video will appear here :D</div>
+    <form id="uploadForm" hx-post="/upload" hx-encoding="multipart/form-data" hx-swap="innerHTML" hx-target="#response" hx-indicator=".loader" >
+        <div id="inputs">
             <label for="environment" id="btn">Take image</label>
             <input type="file" id="environment" name="image" accept="image/*" capture="environment"  onchange="handleImageUpload(event)">
 
             <label for="video" id="btn2">Take video</label>
             <input type="file" id="video" name="video" accept="video/*" capture="environment" onchange="handleVideoUpload(event)">
+            
         </div>
 
-        <br>
-        <br>
-        <input type="text" name="flag" id="flag" style="display:none;">
+        <input type="text" name="flag" id="flag"  style="display:none;">
 
-        <input type="text" name="prmpt" required>
-        <br>
-        <br>
+        <div>
+          <input type="text" placeholder="Your prompt comes here ;)" id="prmpt" name="prmpt" required style="border-color:#e0e0e0; border-width: 2px;">
+        </div>
+    
+
+        <button class="buttonload uploadbtn disco" type="submit" hx-target="#response" hx-swap="innerHTML" hx-indicator="#loader">Generate response</button>
+
+
         <!-- <div hx-get="/upload" hx-target="#response"></div> -->
-        <div id="response"></div>
-        <br>
-        <br>
-        <button class="buttonload" type="submit" hx-target="#response" hx-swap="innerHTML">Upload <span id="loading-indicator" style="display: none;">...</span></button>
+         <div class="loader"> Generating response :3</div>
+         <div id="border">
+          <div id="response">Your response comes here :P</div>
+         </div>
+
     </form>
+
 </body>
 </html>
 
+
 <script>
+
 
 
 function handleImageUpload(event) {
@@ -206,7 +277,6 @@ function handleVideoUpload(event) {
 }
 
 function listenn(cur){
-
     updateNav(cur);
 }
 
