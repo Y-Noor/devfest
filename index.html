@@ -41,7 +41,7 @@
         display: block; /* Removes extra space below the image */
     }
 
-#environment, #environment2, #imaage, #video {
+#environment, #environment2, #imaage, #video, #ocr{
     display: none;
 }
 
@@ -58,7 +58,19 @@
 }
 
 #btn2 {
-    background-color: #0470aa; /* Green */
+    background-color: #0470aa;
+    border: none;
+    border-radius: 7px;
+    color: white;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 24px;  
+}
+
+#btn3 {
+    background-color: #FBBC05;
     border: none;
     border-radius: 7px;
     color: white;
@@ -203,6 +215,10 @@
             <label for="video" id="btn2">Take video</label>
             <input type="file" id="video" name="video" accept="video/*" capture="environment" onchange="handleVideoUpload(event)">
             
+            <label for="ocr" id="btn3">Scan document</label>
+            <input type="file" id="ocr" name="image" accept="image/*" capture="environment"  onchange="handleDocUpload(event)">
+            
+
         </div>
 
         <input type="text" name="flag" id="flag"  style="display:none;">
@@ -276,23 +292,29 @@ function handleVideoUpload(event) {
     }
 }
 
-function listenn(cur){
-    updateNav(cur);
-}
 
-function updateNav(cur){
-    let curPageClass = "rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
-    let prevPageClass = "rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-    curList = ["gemini", "intelligence"]
-    for (let i = 0; i<curList.length; i++){
-        document.getElementById(curList[i]).className = prevPageClass;
-        document.getElementById(curList[i]).removeAttribute("aria-current")
+function handleOcrUpload(event) {
+    const file = event.target.files[0]; // Get the selected file
+
+    if (file) {
+        const reader = new FileReader(); // Create a FileReader instance
+        reader.onload = function(e) {
+            const doc = document.createElement('video'); // Create an img element
+            doc.src = e.target.result; // Set the image source to the loaded data
+            doc.alt = "Uploaded document"; // Provide alt text
+
+            // Clear previous images and display the new one
+            const imageDisplay = document.getElementById('captured');
+            imageDisplay.innerHTML = ''; // Clear previous content
+            imageDisplay.appendChild(doc); // Append the new image
+        };
+        reader.readAsDataURL(file); // Read the file as a data URL
+        
+        const flag = document.getElementById('flag');
+        flag.value = "doc";
+
     }
-    
-
-    let newElem = document.getElementById(cur).className = curPageClass;
-
-
 }
+
 
 </script>
