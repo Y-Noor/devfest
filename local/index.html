@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- <link rel="stylesheet" type="text/css" href="styles.css" /> -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- <script type="text/javascript" src="myscripts.js"></script> -->
+    <title>Camera Access and Video Display</title>
+    <!-- <script src="script.js"></script> -->
+    <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script> 
+
+    <style>
+      html{
+        font-size: 34px;
+      }
+        body{
+          width: 100vw;
+          height: 100vh;
+          background-color: #1f2021;
+    text-align:center
+}
+#captured {
+        /* Optional: set a max-width to prevent the image from getting too large */
+        max-width: 35%; 
+        display: inline-block; /* Allows the container to resize based on image size */
+        border: 2px solid #EA4335; /* Optional: Add border around image */
+        border-style: dashed;
+        padding: 10px; /* Optional: Add padding around the image */
+        margin: 10px;
+        min-width: 150px;
+        min-height: 50px;
+        color: #ccc ;
+
+    }
+
+    /* Image styling */
+    img, video {
+        max-width: 100%; /* Ensure the image doesn't exceed the container's width */
+        height: auto; /* Maintain aspect ratio */
+        display: block; /* Removes extra space below the image */
+    }
+
+#environment, #environment2, #imaage, #video, #ocr{
+    display: none;
+}
+
+#btn {
+    background-color: #34A853; /* Green */
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 7px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 24px;  
+}
+
+#btn2 {
+    background-color: #0470aa;
+    border: none;
+    border-radius: 7px;
+    color: white;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 24px;  
+}
+
+#btn3 {
+    background-color: #FBBC05;
+    border: none;
+    border-radius: 7px;
+    color: white;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 24px;  
+}
+
+#btn:hover{
+    cursor: grab;
+}
+
+
+.buttonload {
+  /* background-color: #04AA6D;  */
+  border: none; /* Remove borders */
+  color: white; /* White text */
+  padding: 12px 16px; /* Some padding */
+  font-size: 16px /* Set a font size */
+}
+
+#inputs{
+  margin-top: 20px;
+}
+
+
+#prmpt{
+  margin-top: 40px;
+  width: 600px;
+  padding: 10px;
+  border-radius: 15px;
+}
+
+#border{
+  width: 66666px;
+  border-radius: 10px;
+  border: 4px dashed;
+  max-width: 40%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  border-color: #FBBC05;
+
+
+}
+
+#response{
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  color: #ccc;
+  padding: 15px;
+
+}
+
+
+.loader{
+  margin-top: 10px;
+  max-width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  opacity:0;
+  /* position:fixed; */
+  width:600px;
+  text-align: center;
+  top: 50%;
+  left: calc(50%-100px);
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+	background-size: 400% 400%;
+	animation: gradient 5s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+.loader.htmx-request{
+  opacity:1;
+}
+
+
+
+.buttonload {
+  margin-top: 40px;
+  padding:20px;
+  /* height: 300px; */
+  border-radius: 50px;
+  border: 2px solid #000; /* Set initial border color and width */
+  transition: border-color 0.5s ease; /* Transition for smooth color change */
+  font-size: 28px;
+}
+
+.disco {
+  background-color: #313233; /* Change border color on hover */
+  animation: color-move 2s infinite linear; /* Animate color movement */
+}
+
+@keyframes color-move {
+  0% {
+    border-color: #4285F4;
+  }
+  25% {
+    border-color: #34A853;
+  }
+  50% {
+    border-color: #FBBC05;
+  }
+  75% {
+    border-color: #EA4335;
+  }
+  100% {
+    border-color: #4285F4;
+  }
+}
+
+</style>
+
+
+
+<body>
+    <div id="captured">Your image/video will appear here :D</div>
+    <form id="uploadForm" hx-post="/upload" hx-encoding="multipart/form-data" hx-swap="innerHTML" hx-target="#response" hx-indicator=".loader" >
+        <div id="inputs">
+            <label for="environment" id="btn">Take image</label>
+            <input type="file" id="environment" name="image" accept="image/*" capture="environment"  onchange="handleImageUpload(event)">
+
+            <label for="video" id="btn2">Take video</label>
+            <input type="file" id="video" name="video" accept="video/*" capture="environment" onchange="handleVideoUpload(event)">
+            
+            <label for="ocr" id="btn3">Scan document</label>
+            <input type="file" id="ocr" name="image" accept="image/*" capture="environment"  onchange="handleDocUpload(event)">
+            
+
+        </div>
+
+        <input type="text" name="flag" id="flag"  style="display:none;">
+
+        <div>
+          <input type="text" placeholder="Your prompt comes here ;)" id="prmpt" name="prmpt" required style="border-color:#e0e0e0; border-width: 2px;">
+        </div>
+    
+
+        <button class="buttonload uploadbtn disco" type="submit" hx-target="#response" hx-swap="innerHTML" hx-indicator="#loader">Generate response</button>
+
+
+        <!-- <div hx-get="/upload" hx-target="#response"></div> -->
+         <div class="loader"> Generating response :3</div>
+         <div id="border">
+          <div id="response">Your response comes here :P</div>
+         </div>
+
+    </form>
+
+</body>
+</html>
+
+
+<script>
+
+
+
+function handleImageUpload(event) {
+    const file = event.target.files[0]; // Get the selected file
+
+    if (file) {
+        const reader = new FileReader(); // Create a FileReader instance
+        reader.onload = function(e) {
+            const img = document.createElement('img'); // Create an img element
+            img.src = e.target.result; // Set the image source to the loaded data
+            img.alt = "Uploaded Image"; // Provide alt text
+
+            // Clear previous images and display the new one
+            const imageDisplay = document.getElementById('captured');
+            imageDisplay.innerHTML = ''; // Clear previous content
+            imageDisplay.appendChild(img); // Append the new image
+        };
+        reader.readAsDataURL(file); // Read the file as a data URL
+    }
+    const flag = document.getElementById('flag');
+    flag.value = "img";
+}
+
+function handleVideoUpload(event) {
+    const file = event.target.files[0]; // Get the selected file
+
+    if (file) {
+        const reader = new FileReader(); // Create a FileReader instance
+        reader.onload = function(e) {
+            const vid = document.createElement('video'); // Create an img element
+            vid.src = e.target.result; // Set the image source to the loaded data
+            vid.alt = "Uploaded Video"; // Provide alt text
+            vid.controls = true; 
+
+            // Clear previous images and display the new one
+            const imageDisplay = document.getElementById('captured');
+            imageDisplay.innerHTML = ''; // Clear previous content
+            imageDisplay.appendChild(vid); // Append the new image
+        };
+        reader.readAsDataURL(file); // Read the file as a data URL
+        
+        const flag = document.getElementById('flag');
+        flag.value = "vid";
+
+    }
+}
+
+
+function handleDocUpload(event) {
+  const file = event.target.files[0]; // Get the selected file
+
+if (file) {
+    const reader = new FileReader(); // Create a FileReader instance
+    reader.onload = function(e) {
+        const img = document.createElement('img'); // Create an img element
+        img.src = e.target.result; // Set the image source to the loaded data
+        img.alt = "Uploaded Image"; // Provide alt text
+
+        // Clear previous images and display the new one
+        const imageDisplay = document.getElementById('captured');
+        imageDisplay.innerHTML = ''; // Clear previous content
+        imageDisplay.appendChild(img); // Append the new image
+    };
+    reader.readAsDataURL(file); // Read the file as a data URL
+}
+const flag = document.getElementById('flag');
+flag.value = "doc";
+}
+
+
+</script>
