@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -23,11 +22,10 @@ import (
 
 const (
 	maxUploadSize = 100 * 1024 * 1024 // 2 MB
-	uploadPath    = "./uploads"       // Change to your desired path
 )
 
 func main() {
-	fmt.Println("hello")
+	fmt.Println("Server's up")
 	API_KEY := "YOUR_API_KEY_GOES_HERE"
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +41,6 @@ func main() {
 
 		dt := time.Now()
 		dtf := dt.Format("01_02_2006_15_04_05")
-		// fmt.Println()
 
 		r.ParseMultipartForm(maxUploadSize)
 
@@ -52,11 +49,8 @@ func main() {
 		fmt.Println("prompt: ", prompt)
 		flag := r.FormValue("flag")
 
-		fmt.Println("flag::::::::::::::::", flag)
-
 		if flag == "img" || flag == "doc" {
 
-			fmt.Println("inside img if")
 			file, fileHeader, err := r.FormFile("image")
 			imageForBucket, _ := io.ReadAll(file)
 			promptForBucket := []byte(prompt)
@@ -71,11 +65,8 @@ func main() {
 
 			ctxt := context.Background()
 
-			// projectID := "devfest2024-438119"
 			ctx := context.Background()
 
-			// Replace with your project ID
-			// projectID := "devfest2024-438119"
 			bucketName := "devfest2024bucket"
 
 			// Create a Cloud Storage client
@@ -114,18 +105,12 @@ func main() {
 			}
 
 			if flag == "doc" {
-				fmt.Println("in ocr")
-				// imgForAPI := client.Bucket(bucketName).Object("img" + dtf)
 
 				vClient, _ := vision.NewImageAnnotatorClient(ctx)
 
 				image, _ := vision.NewImageFromReader(file)
-				fmt.Println(image)
-				fmt.Println(image)
-				// image, _ := vision.NewImageFromReader(f)
 
 				annotation, _ := vClient.DetectDocumentText(ctx, image, nil)
-				fmt.Println(annotation)
 
 				resp := ""
 				if annotation == nil {
@@ -134,7 +119,6 @@ func main() {
 					resp = "Document Text:"
 					resp = resp + annotation.Text + "\n"
 
-					// fmt.Fprintln(w, "Pages:")
 					for _, page := range annotation.Pages {
 						for _, block := range page.Blocks {
 							for _, paragraph := range block.Paragraphs {
@@ -144,7 +128,6 @@ func main() {
 										symbols[i] = s.Text
 									}
 									wordText := strings.Join(symbols, "")
-									// fmt.Fprintf(w, "\t\t\t\tConfidence: %f, Symbols: %s\n", word.Confidence, wordText)
 									resp = resp + wordText
 								}
 							}
@@ -158,50 +141,6 @@ func main() {
 				return
 			}
 
-			// opts := &storage.SignedURLOptions{
-			// 	Scheme:  storage.SigningSchemeV4,
-			// 	Method:  "GET",
-			// 	Expires: time.Now().Add(15 * time.Minute),
-			// }
-
-			// // object = storageClient.Bucket(bucketName).Object(objectName)
-			// objectURL, err := storageClient.Bucket(bucketName).SignedURL(dtf, opts)
-			// // objectURL, err := object.SignedURL(ctxt, 3600) // Set the expiration time in seconds
-			// if err != nil {
-			// 	log.Fatalf("Failed to get object URL: %v", err)
-			// }
-
-			// // Create a Gemini Vision model client
-			// geminiClient, err := genai.NewClient(ctxt, option.WithAPIKey(string(API_KEY)))
-			// if err != nil {
-			// 	log.Fatalf("Failed to create Gemini Vision model client: %v", err)
-			// }
-			// defer geminiClient.Close()
-
-			// // Prepare the request
-			// request := map[string]interface{}{
-			// 	"image": objectURL,
-			// }
-
-			// // Send the request
-			// response, err := geminiClient.Ca(ctxt, "gemini-1.5-flash", request)
-			// if err != nil {
-			// 	log.Fatalf("Failed to call Gemini Vision model: %v", err)
-			// }
-
-			// // Process the response
-			// var result map[string]interface{}
-			// err = json.Unmarshal(response, &result)
-			// if err != nil {
-			// 	log.Fatalf("Failed to parse response: %v", err)
-			// }
-
-			// fmt.Println("Result:", result)
-
-			//
-
-			// ImageNewFilePath := filepath.Join(uploadPath, dtf+".jpg")
-			// PromptNewFilePath := filepath.Join(uploadPath, dtf+".txt")
 			client2, err := genai.NewClient(ctx, option.WithAPIKey(string(API_KEY)))
 			if err != nil {
 				log.Fatal(err)
@@ -217,48 +156,6 @@ func main() {
 					prompt),
 			}
 			resp, err := model.GenerateContent(ctxt, prompt...)
-
-			// newFile, err := os.Create(ImageNewFilePath)
-			// if err != nil {
-			// 	http.Error(w, "Unable to create file", http.StatusInternalServerError)
-			// 	return
-			// }
-			// x, e := os.Create(PromptNewFilePath)
-			// _, err = x.WriteString(prompt)
-
-			// if e != nil {
-			// 	log.Print("err")
-			// }
-
-			// defer newFile.Close()
-
-			// // Copy the uploaded file to the new file on disk
-			// if _, err := io.Copy(newFile, file); err != nil {
-			// 	http.Error(w, "Unable to save file", http.StatusInternalServerError)
-			// 	return
-			// }
-
-			// Access your API key as an environment variable (see "Set up your API key" above)
-			// client, err := genai.NewClient(ctx, option.WithAPIKey(string(API_KEY)))
-			// if err != nil {
-			// 	log.Fatal(err)
-			// }
-			// defer client.Close()
-
-			// modelfile, err := client.UploadFileFromPath(ctx, filepath.Join(uploadPath, dtf+".jpg"), nil)
-			// if err != nil {
-			// 	log.Fatal(err)
-			// }
-			// defer client.DeleteFile(ctx, modelfile.Name)
-
-			// ----------------------------- THIS ONE
-			// model := client.GenerativeModel("gemini-1.5-flash")
-			// resp, err := model.GenerateContent(ctx,
-			// 	genai.FileData{URI: modelfile.URI},
-			// 	genai.Text(prompt))
-			// if err != nil {
-			// 	log.Fatal(err)
-			// }
 
 			response := ""
 			if resp.Candidates != nil {
@@ -281,31 +178,22 @@ func main() {
 			}
 
 			fmt.Println(response)
-			// fmt.Fprintf(w, "Successfully uploaded: %s\n", fileHeader.Filename)
 			templ, _ := template.New("t").Parse(response)
 			templ.Execute(w, nil)
 
 		} else if flag == "vid" {
-			fmt.Print("videoooooooooo")
 
 			file, fileHeader, err := r.FormFile("video")
 			defer file.Close()
 
-			// ////////////////////////////////////////////////////////////////
-
 			videoForBucket, _ := io.ReadAll(file)
-			promptForBucket := []byte(prompt)
-			fmt.Println(videoForBucket)
-			fmt.Println(promptForBucket)
+
 			if err != nil {
 				http.Error(w, "Invalid file", http.StatusBadRequest)
 				fmt.Print(fileHeader)
 				return
 			}
 
-			// ctxt := context.Background()
-
-			// projectID := "devfest2024-438119"
 			ctx := context.Background()
 			fmt.Println("context bg")
 			client, err := storage.NewClient(ctx)
@@ -315,8 +203,6 @@ func main() {
 			}
 			defer client.Close()
 
-			// Replace with your project ID
-			// projectID := "devfest2024-438119"
 			bucketName := "devfest2024bucket"
 
 			ctx, cancel := context.WithTimeout(ctx, time.Second*50)
@@ -342,8 +228,6 @@ func main() {
 			}
 			fmt.Println("%v uploaded to %v.\n", "video"+dtf, bucketName)
 
-			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 			ctx2 := context.Background()
 			client2, err := storage.NewClient(ctx2)
 			if err != nil {
@@ -360,41 +244,25 @@ func main() {
 			}
 			defer rc.Close()
 
-			data, err := ioutil.ReadAll(rc)
-			if err != nil {
-				fmt.Errorf("ioutil.ReadAll: %w", err)
-			}
-			fmt.Println("Blob %v downloaded.\n")
-			fmt.Println(data)
-
-			/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			ctx3 := context.Background()
-			fmt.Println("ctx3")
 
 			vClient, err := genai.NewClient(ctx3, option.WithAPIKey(string(API_KEY)))
 			if err != nil {
 				log.Fatal(err)
 			}
 			defer vClient.Close()
-			fmt.Println("vclient done")
-
-			//open?
 
 			// Optionally set a display name.
 			opts := genai.UploadFileOptions{DisplayName: "video" + dtf}
-			fmt.Println("opts")
 
 			// Let the API generate a unique `name` for the file by passing an empty string.
 			// If you specify a `name`, then it has to be globally unique.
 			reader := bytes.NewReader(videoForBucket)
 			response3, err := vClient.UploadFile(ctx3, "", reader, &opts)
-			fmt.Println("response")
-			fmt.Println(response3)
 
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Println(response3)
 
 			// View the response.
 			var VideoFile *genai.File = response3
@@ -403,7 +271,6 @@ func main() {
 			// Poll GetFile() on a set interval (10 seconds here) to
 			// check file state.
 			for response3.State == genai.FileStateProcessing {
-				fmt.Print(".")
 				// Sleep for 10 seconds
 				time.Sleep(10 * time.Second)
 
@@ -413,7 +280,6 @@ func main() {
 					log.Fatal(err)
 				}
 			}
-			fmt.Println()
 
 			// View the response.
 			fmt.Printf("File %s is ready for inference as: %q\n",
