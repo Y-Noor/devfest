@@ -24,7 +24,7 @@ const (
 )
 
 func main() {
-	fmt.Println("hello")
+	fmt.Println("Server's up!")
 	API_KEY, _ := os.ReadFile("keys.txt")
 
 	h1 := func(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +40,6 @@ func main() {
 
 		dt := time.Now()
 		dtf := dt.Format("01_02_2006_15_04_05")
-		// fmt.Println()
 
 		r.ParseMultipartForm(maxUploadSize)
 
@@ -52,9 +51,7 @@ func main() {
 		fmt.Println("flag::::::::::::::::", flag)
 
 		if flag == "img" {
-			fmt.Println("inside img if")
 			file, fileHeader, err := r.FormFile("image")
-			fmt.Println(file)
 
 			if err != nil {
 				http.Error(w, "Invalid file", http.StatusBadRequest)
@@ -103,7 +100,6 @@ func main() {
 			}
 			defer client.DeleteFile(ctx, modelfile.Name)
 
-			// ----------------------------- THIS ONE
 			model := client.GenerativeModel("gemini-1.5-flash")
 			resp, err := model.GenerateContent(ctx,
 				genai.FileData{URI: modelfile.URI},
@@ -121,12 +117,9 @@ func main() {
 				}
 			}
 
-			// fmt.Fprintf(w, response)
-			// fmt.Fprintf(w, "Successfully uploaded: %s\n", fileHeader.Filename)
 			templ, _ := template.New("t").Parse(response)
 			templ.Execute(w, nil)
 		} else if flag == "vid" {
-			fmt.Print("videoooooooooo")
 
 			file, fileHeader, err := r.FormFile("video")
 
@@ -193,7 +186,6 @@ func main() {
 			// Poll GetFile() on a set interval (10 seconds here) to
 			// check file state.
 			for response.State == genai.FileStateProcessing {
-				fmt.Print(".")
 				// Sleep for 10 seconds
 				time.Sleep(10 * time.Second)
 
@@ -203,7 +195,6 @@ func main() {
 					log.Fatal(err)
 				}
 			}
-			fmt.Println()
 
 			// View the response.
 			fmt.Printf("File %s is ready for inference as: %q\n",
